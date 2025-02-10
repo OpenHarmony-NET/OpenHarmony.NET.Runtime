@@ -1,0 +1,7 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+
+	<Import Project="runtime.linux-musl-arm64.microsoft.dotnet.ilcompiler/runtime.arm64.targets" Condition="$(RuntimeIdentifier.Contains('linux-musl-arm64'))" />
+	<Import Project="runtime.linux-musl-x64.microsoft.dotnet.ilcompiler/runtime.x64.targets" Condition="$(RuntimeIdentifier.Contains('linux-musl-x64'))" />
+
+</Project>

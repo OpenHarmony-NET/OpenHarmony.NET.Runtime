@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Private.StackTraceMetadata</name>
+    </assembly>
+    <members>
+        <member name="T:Internal.StackTraceMetadata.StackTraceMetadata">
+            <summary>
+            This helper class is used to resolve non-reflectable method names using a special
+            compiler-generated metadata blob to enhance quality of exception call stacks
+            in situations where symbol information is not available.
+            </summary>
+        </member>
+        <member name="F:Internal.StackTraceMetadata.StackTraceMetadata._perModuleMethodNameResolverHashtable">
+            <summary>
+            Module address-keyed map of per-module method name resolvers.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.Initialize">
+            <summary>
+            Eager startup initialization of stack trace metadata support creates
+            the per-module method name resolver hashtable and registers the runtime augment
+            for metadata-based stack trace resolution.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.GetMethodNameFromStartAddressIfAvailable(System.IntPtr,System.Boolean@)">
+            <summary>
+            Locate the containing module for a method and try to resolve its name based on start address.
+            </summary>
+        </member>
+        <member name="T:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolverHashtable">
+            <summary>
+            This hashtable supports mapping from module start addresses to per-module method name resolvers.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolverHashtable.GetKeyHashCode(System.IntPtr)">
+            <summary>
+            Given a key, compute a hash code. This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolverHashtable.GetValueHashCode(Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver)">
+            <summary>
+            Given a value, compute a hash code which would be identical to the hash code
+            for a key which should look up this value. This function must be thread safe.
+            This function must also not cause additional hashtable adds.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolverHashtable.CompareKeyToValue(System.IntPtr,Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver)">
+            <summary>
+            Compare a key and value. If the key refers to this value, return true.
+            This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolverHashtable.CompareValueToValue(Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver,Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver)">
+            <summary>
+            Compare a value with another value. Return true if values are equal.
+            This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolverHashtable.CreateValueFromKey(System.IntPtr)">
+            <summary>
+            Create a new value from a key. Must be threadsafe. Value may or may not be added
+            to collection. Return value must not be null.
+            </summary>
+        </member>
+        <member name="T:Internal.StackTraceMetadata.StackTraceMetadata.StackTraceMetadataCallbacksImpl">
+            <summary>
+            Implementation of stack trace metadata callbacks.
+            </summary>
+        </member>
+        <member name="T:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver">
+            <summary>
+            Method name resolver for a single binary module
+            </summary>
+        </member>
+        <member name="F:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver._moduleAddress">
+            <summary>
+            Start address of the module in question.
+            </summary>
+        </member>
+        <member name="F:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver._stacktraceDatas">
+            <summary>
+            Dictionary mapping method RVA's to tokens within the metadata blob.
+            </summary>
+        </member>
+        <member name="F:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver.Reader">
+            <summary>
+            Metadata reader for the stack trace metadata.
+            </summary>
+        </member>
+        <member name="P:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver.ModuleAddress">
+            <summary>
+            Publicly exposed module address property.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver.#ctor(System.IntPtr)">
+            <summary>
+            Construct the per-module resolver by looking up the necessary blobs.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver.PopulateRvaToTokenMap(Internal.Runtime.TypeManagerHandle,System.Byte*,System.UInt32)">
+            <summary>
+            Construct the dictionary mapping method RVAs to stack trace metadata tokens
+            within a single binary module.
+            </summary>
+            <param name="handle">Module to use to construct the mapping</param>
+            <param name="pMap">List of RVA - token pairs</param>
+            <param name="length">Length of the blob</param>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver.TryGetStackTraceData(System.Int32,Internal.StackTraceMetadata.StackTraceMetadata.PerModuleMethodNameResolver.StackTraceData@)">
+            <summary>
+            Try to resolve method name based on its address using the stack trace metadata
+            </summary>
+        </member>
+        <member name="F:Internal.StackTraceMetadata.MethodNameFormatter._metadataReader">
+            <summary>
+            Metadata reader used for the purpose of method name formatting.
+            </summary>
+        </member>
+        <member name="F:Internal.StackTraceMetadata.MethodNameFormatter._outputBuilder">
+            <summary>
+            String builder used to construct formatted method name.
+            </summary>
+        </member>
+        <member name="F:Internal.StackTraceMetadata.MethodNameFormatter._typeContext">
+            <summary>
+            Represents the instatiation type context.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.#ctor(Internal.Metadata.NativeFormat.MetadataReader,Internal.StackTraceMetadata.MethodNameFormatter.SigTypeContext)">
+            <summary>
+            Initialize the reader used for method name formatting.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitMethodParameters(Internal.Metadata.NativeFormat.MethodSignature)">
+            <summary>
+            Emit parenthesized method argument type list.
+            </summary>
+            <param name="methodSignature">Method signature to use for parameter formatting</param>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitMethodParameters(Internal.Metadata.NativeFormat.MethodHandle)">
+            <summary>
+            Emit parenthesized method argument type list with parameter names.
+            </summary>
+            <param name="methodHandle">Method handle to use for parameter formatting</param>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitTypeVector(Internal.Metadata.NativeFormat.HandleCollection)">
+            <summary>
+            Emit comma-separated list of type names into the output string builder.
+            </summary>
+            <param name="typeVector">Enumeration of type handles to output</param>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitTypeName(Internal.Metadata.NativeFormat.Handle,Internal.StackTraceMetadata.MethodNameFormatter.Flags)">
+            <summary>
+            Emit the name of a given type to the output string builder.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitNamespaceReferenceName(Internal.Metadata.NativeFormat.NamespaceReferenceHandle)">
+            <summary>
+            Emit namespace reference.
+            </summary>
+            <param name="namespaceRefHandle">Namespace reference handle</param>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitTypeReferenceName(Internal.Metadata.NativeFormat.TypeReferenceHandle,Internal.StackTraceMetadata.MethodNameFormatter.Flags)">
+            <summary>
+            Emit type reference.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitTypeSpecificationName(Internal.Metadata.NativeFormat.TypeSpecificationHandle,Internal.StackTraceMetadata.MethodNameFormatter.Flags)">
+            <summary>
+            Emit an arbitrary type specification.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitTypeInstantiationName(Internal.Metadata.NativeFormat.TypeInstantiationSignatureHandle,Internal.StackTraceMetadata.MethodNameFormatter.Flags)">
+            <summary>
+            Emit generic instantiation type.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitSZArrayTypeName(Internal.Metadata.NativeFormat.SZArraySignatureHandle,Internal.StackTraceMetadata.MethodNameFormatter.Flags)">
+            <summary>
+            Emit SZArray (single-dimensional array with zero lower bound) type.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitArrayTypeName(Internal.Metadata.NativeFormat.ArraySignatureHandle,Internal.StackTraceMetadata.MethodNameFormatter.Flags)">
+            <summary>
+            Emit multi-dimensional array type.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitPointerTypeName(Internal.Metadata.NativeFormat.PointerSignatureHandle)">
+            <summary>
+            Emit pointer type.
+            </summary>
+            <param name="pointerSigHandle">Pointer type specification signature handle</param>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitFunctionPointerTypeName">
+            <summary>
+            Emit function pointer type.
+            </summary>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitByRefTypeName(Internal.Metadata.NativeFormat.ByReferenceSignatureHandle)">
+            <summary>
+            Emit by-reference type.
+            </summary>
+            <param name="byRefSigHandle">ByReference type specification signature handle</param>
+        </member>
+        <member name="M:Internal.StackTraceMetadata.MethodNameFormatter.EmitString(Internal.Metadata.NativeFormat.ConstantStringValueHandle)">
+            <summary>
+            Emit a string (represented by a serialized ConstantStringValue) to the output string builder.
+            </summary>
+            <param name="stringHandle">Constant string value token (offset within stack trace native metadata)</param>
+        </member>
+    </members>
+</doc>

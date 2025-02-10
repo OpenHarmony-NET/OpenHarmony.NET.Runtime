@@ -1,0 +1,2338 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Private.TypeLoader</name>
+    </assembly>
+    <members>
+        <member name="M:Internal.NativeFormat.TypeHashingAlgorithms.ComputeMethodHashCode(System.Int32,System.Int32)">
+            <summary>
+            Produce a hashcode for a specific method
+            </summary>
+            <param name="typeHashCode">HashCode of the type that owns the method</param>
+            <param name="nameOrNameAndGenericArgumentsHashCode">HashCode of either the name of the method (for non-generic methods) or the GenericInstanceHashCode of the name+generic arguments of the method.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Internal.NativeFormat.TypeHashingAlgorithms.ComputeSignatureVariableHashCode(System.Int32,System.Boolean)">
+            <summary>
+            Produce a hashcode for a generic signature variable
+            </summary>
+            <param name="index">zero based index</param>
+            <param name="method">true if the signature variable describes a method</param>
+        </member>
+        <member name="P:Internal.Runtime.MethodTable.SupportsRelativePointers">
+            <summary>
+            Gets a value indicating whether the statically generated data structures use relative pointers.
+            </summary>
+        </member>
+        <member name="P:Internal.Runtime.MethodTable.NullableValueOffset">
+            <summary>
+            Gets the offset of the value embedded in a Nullable&lt;T&gt;.
+            </summary>
+        </member>
+        <member name="P:Internal.Runtime.MethodTable.WritableData">
+            <summary>
+            Gets a pointer to a segment of writable memory associated with this MethodTable.
+            The purpose of the segment is controlled by the class library. The runtime doesn't
+            use this memory for any purpose.
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.EETypeFlags">
+            <summary>
+            Represents the flags stored in the <c>_usFlags</c> field of a <c>System.Runtime.MethodTable</c>.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.EETypeKindMask">
+            <summary>
+            There are four kinds of EETypes, defined in <c>Kinds</c>.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.HasDispatchMap">
+            <summary>
+            Type has an associated dispatch map.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.IsDynamicTypeFlag">
+            <summary>
+            This type was dynamically allocated at runtime.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.HasFinalizerFlag">
+            <summary>
+            This MethodTable represents a type which requires finalization.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.HasSealedVTableEntriesFlag">
+            <summary>
+            This MethodTable has sealed vtable entries
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.GenericVarianceFlag">
+            <summary>
+            This type is generic and one or more of its type parameters is co- or contra-variant. This
+            only applies to interface and delegate types.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.HasPointersFlag">
+            <summary>
+            This type contain GC pointers.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.IsGenericFlag">
+            <summary>
+            This type is generic.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.ElementTypeMask">
+            <summary>
+            We are storing a EETypeElementType in the upper bits for unboxing enums.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlags.HasComponentSizeFlag">
+            <summary>
+            The _usComponentSize is a number (not holding FlagsEx).
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.EETypeFlagsEx">
+            <summary>
+            Represents the extra flags stored in the <c>_usComponentSize</c> field of a <c>System.Runtime.MethodTable</c>
+            when <c>_usComponentSize</c> does not represent ComponentSize. (i.e. when the type is not an array, string or typedef)
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlagsEx.IDynamicInterfaceCastableFlag">
+            <summary>
+            This type implements IDynamicInterfaceCastable to allow dynamic resolution of interface casts.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlagsEx.IsByRefLikeFlag">
+            <summary>
+            This MethodTable is for a Byref-like class (TypedReference, Span&lt;T&gt;,...)
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlagsEx.ValueTypeFieldPaddingMask">
+            <summary>
+            For valuetypes, stores the padding by which the type size is padded on the GC heap.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlagsEx.NullableValueOffsetMask">
+            <summary>
+            For nullable types, stores the log2 of offset of the value field.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeFlagsEx.RequiresAlign8Flag">
+            <summary>
+            This type requires 8-byte alignment for its fields on certain platforms (ARM32, WASM)
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeKind.CanonicalEEType">
+            <summary>
+            Represents a standard ECMA type
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeKind.FunctionPointerEEType">
+            <summary>
+            Represents a function pointer
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeKind.ParameterizedEEType">
+            <summary>
+            Represents a parameterized type. For example a single dimensional array or pointer type
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.EETypeKind.GenericTypeDefEEType">
+            <summary>
+            Represents an uninstantiated generic type definition
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.DynamicTypeFlags">
+            <summary>
+            Flags that are set for dynamically allocated types.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.DynamicTypeFlags.HasLazyCctor">
+            <summary>
+            This dynamically created type has a static constructor
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.DynamicTypeFlags.HasGCStatics">
+            <summary>
+            This dynamically created types has gc statics
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.DynamicTypeFlags.HasNonGCStatics">
+            <summary>
+            This dynamically created types has non gc statics
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.DynamicTypeFlags.HasThreadStatics">
+            <summary>
+            This dynamically created types has thread statics
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.GCStaticRegionConstants.Uninitialized">
+            <summary>
+            Flag set if the corresponding GCStatic entry has not yet been initialized and
+            the corresponding MethodTable pointer has been changed into a instance pointer of
+            that MethodTable.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.GCStaticRegionConstants.HasPreInitializedData">
+            <summary>
+            Flag set if the next pointer loc points to GCStaticsPreInitDataNode.
+            Otherise it is the next GCStatic entry.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.ArrayTypesConstants.MaxSizeForValueClassInArray">
+            <summary>
+            Maximum allowable size for array element types.
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.MethodFixupCellFlagsConstants">
+            <summary>
+            Constants that describe the bits of the Flags field of MethodFixupCell.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ExternalReferencesTable.InitializeCommonFixupsTable(Internal.Runtime.TypeManagerHandle)">
+            <summary>
+            Initialize ExternalReferencesTable using the CommonFixupsTable metadata blob on a given module.
+            </summary>
+            <param name="module">Module handle is used to locate the CommonFixupsTable blob</param>
+            <returns>true when the CommonFixupsTable blob was found in the given module, false when not</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ExternalReferencesTable.InitializeNativeReferences(Internal.Runtime.TypeLoader.NativeFormatModuleInfo)">
+            <summary>
+            Initialize ExternalReferencesTable using the NativeReferences metadata blob on a given module.
+            </summary>
+            <param name="module">Module handle is used to locate the NativeReferences blob</param>
+            <returns>true when the NativeReferences blob was found in the given module, false when not</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ExternalReferencesTable.InitializeNativeStatics(Internal.Runtime.TypeLoader.NativeFormatModuleInfo)">
+            <summary>
+            Initialize ExternalReferencesTable using the NativeStatics metadata blob on a given module.
+            </summary>
+            <param name="module">Module handle is used to locate the NativeStatics blob</param>
+            <returns>true when the NativeStatics blob was found in the given module, false when not</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ExternalReferencesTable.InitializeCommonFixupsTable(Internal.Runtime.TypeLoader.NativeFormatModuleInfo)">
+            <summary>
+            Initialize ExternalReferencesTable using the CommonFixupsTable metadata blob on a given module.
+            </summary>
+            <param name="module">Module handle is used to locate the CommonFixupsTable blob</param>
+            <returns>true when the CommonFixupsTable blob was found in the given module, false when not</returns>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.GenericDictionaryCell.NonGenericStaticConstrainedMethodCell">
+            <summary>
+            Used for non-generic static constrained Methods
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.GenericDictionaryCell.GenericStaticConstrainedMethodCell">
+            <summary>
+            Used for generic static constrained Methods
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.LowLevelStringConverter">
+            <summary>
+            Extension methods that provide low level ToString() equivalents for some of the core types.
+            Calling regular ToString() on these types goes through a lot of the CultureInfo machinery
+            which is not low level enough for the type loader purposes.
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.ModuleInfo">
+            <summary>
+            This class represents basic information about a native binary module including its
+            metadata.
+            </summary>
+        </member>
+        <member name="P:Internal.Runtime.TypeLoader.ModuleInfo.Handle">
+            <summary>
+            Module handle is the TypeManager associated with this module.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleInfo.#ctor(Internal.Runtime.TypeManagerHandle)">
+            <summary>
+            Initialize module info and construct per-module metadata reader.
+            </summary>
+            <param name="moduleHandle">Handle (address) of module to initialize</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.NativeFormatModuleInfo.#ctor(Internal.Runtime.TypeManagerHandle,System.IntPtr,System.Int32)">
+            <summary>
+            Initialize module info and construct per-module metadata reader.
+            </summary>
+            <param name="moduleHandle">Handle (address) of module to initialize</param>
+            <param name="pBlob">Module blob start address</param>
+            <param name="cbBlob">Module blob length</param>
+        </member>
+        <member name="P:Internal.Runtime.TypeLoader.NativeFormatModuleInfo.MetadataReader">
+            <summary>
+            Module metadata reader for NativeFormat metadata
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.ModuleMap">
+            <summary>
+            This class represents a linear module list and a dictionary mapping module handles
+            to its indices. When a new module is registered, a new instance of this class gets
+            constructed and atomically updates the _loadedModuleMap so that at any point in time
+            all threads see the map as consistent.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.ModuleMap.Modules">
+            <summary>
+            Array of loaded binary modules.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.ModuleMap.HandleToModuleIndex">
+            <summary>
+            Map of module handles to indices within the Modules array.
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerable">
+            <summary>
+            Helper class that can construct an enumerator for the module info map, possibly adjusting
+            the module order so that a given explicitly specified module goes first - this is used
+            as optimization in cases where a certain module is most likely to contain some metadata.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerable._moduleMap">
+            <summary>
+            Module map to enumerate
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerable._preferredModuleHandle">
+            <summary>
+            Module handle that should be enumerated first, default(IntPtr) when not used.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerable.#ctor(Internal.Runtime.TypeLoader.ModuleMap,Internal.Runtime.TypeManagerHandle)">
+            <summary>
+            Store module map and preferred module to pass to the enumerator upon construction.
+            </summary>
+            <param name="moduleMap">Module map to enumerate</param>
+            <param name="preferredModuleHandle">Optional module handle to enumerate first</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerable.GetEnumerator">
+            <summary>
+            Construct the actual module info enumerator.
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator">
+            <summary>
+            This enumerator iterates the module map, possibly adjusting the order to make a given
+            module go first in the enumeration.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator._modules">
+            <summary>
+            Array of modules to enumerate.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator._preferredIndex">
+            <summary>
+            Preferred module index in the array, -1 when none (in such case the array is enumerated
+            in its natural order).
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator._iterationIndex">
+            <summary>
+            Enumeration step index initially set to -1 (so that the first MoveNext increments it to 0).
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator._currentModule">
+            <summary>
+            Current _modules element that should be returned by Current (updated in MoveNext).
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator.#ctor(Internal.Runtime.TypeLoader.ModuleMap,Internal.Runtime.TypeManagerHandle)">
+            <summary>
+            Initialize the module enumerator state machine and locate the preferred module index.
+            </summary>
+            <param name="moduleMap">Module map to enumerate</param>
+            <param name="preferredModuleHandle">Optional module handle to enumerate first</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator.MoveNext">
+            <summary>
+            Move the enumerator state machine to the next element in the module map.
+            </summary>
+            <returns>true when [another] module is available, false when the enumeration is finished</returns>
+        </member>
+        <member name="P:Internal.Runtime.TypeLoader.NativeFormatModuleInfoEnumerator.Current">
+            <summary>
+            Look up the "current" module corresponding to the previous call to MoveNext.
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.ModuleList">
+            <summary>
+            Utilities for manipulating module list and metadata readers.
+            </summary>
+        </member>
+        <member name="P:Internal.Runtime.TypeLoader.ModuleList.Instance">
+            <summary>
+            Module list is a process-wide singleton that physically lives in the TypeLoaderEnvironment instance.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.#ctor">
+            <summary>
+            Register initially (eagerly) loaded modules.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.GetModuleInfoByHandle(Internal.Runtime.TypeManagerHandle)">
+            <summary>
+            Locate module info for a given module. Fail if not found or before the module registry
+            gets initialized. Must only be called for modules described as native format (not the mrt module, or an ECMA module)
+            </summary>
+            <param name="moduleHandle">Handle of module to look up</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.TryGetModuleInfoByHandle(Internal.Runtime.TypeManagerHandle,Internal.Runtime.TypeLoader.ModuleInfo@)">
+            <summary>
+            Try to Locate module info for a given module. Returns false when not found.
+            gets initialized.
+            </summary>
+            <param name="moduleHandle">Handle of module to look up</param>
+            <param name="moduleInfo">Found module info</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.GetMetadataReaderForModule(Internal.Runtime.TypeManagerHandle)">
+            <summary>
+            Given module handle, locate the metadata reader. Return null when not found.
+            </summary>
+            <param name="moduleHandle">Handle of module to look up</param>
+            <returns>Reader for the embedded metadata blob in the module, null when not found</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.GetModuleInfoForMetadataReader(Internal.Metadata.NativeFormat.MetadataReader)">
+            <summary>
+            Locate the containing module for a given metadata reader. Assert when not found.
+            </summary>
+            <param name="reader">Metadata reader to look up</param>
+            <returns>Module handle of the module containing the given reader</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.GetModuleForMetadataReader(Internal.Metadata.NativeFormat.MetadataReader)">
+            <summary>
+            Locate the containing module for a given metadata reader. Assert when not found.
+            </summary>
+            <param name="reader">Metadata reader to look up</param>
+            <returns>Module handle of the module containing the given reader</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.EnumerateModules">
+            <summary>
+            Enumerate modules.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.ModuleList.EnumerateModules(Internal.Runtime.TypeManagerHandle)">
+            <summary>
+            Enumerate modules. Specify a module that should be enumerated first
+            - this is used as an optimization in cases when a certain binary module is more probable
+            to contain a certain information.
+            </summary>
+            <param name="preferredModule">Handle to the module which should be enumerated first</param>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.NativeLayoutInterfacesAlgorithm">
+            <summary>
+            Reads interfaces for native layout types
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.NativeLayoutInterfacesAlgorithm.InterfaceInSet(Internal.TypeSystem.DefType[],System.Int32,Internal.TypeSystem.DefType)">
+            <summary>
+            Checks if the interface exists in the list of interfaces
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.NoMetadataRuntimeInterfacesAlgorithm">
+            <summary>
+            Gets interface information from the RuntimeTypeHandle for a type with no metadata
+            </summary>
+        </member>
+        <member name="P:Internal.Runtime.TypeLoader.TypeBuilder.ClassConstructorOffset">
+            <summary>
+            The StaticClassConstructionContext for a type is encoded in the negative space
+            of the NonGCStatic fields of a type.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilder.RegisterForPreparation(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Register the type for preparation. The preparation will be done once the current type is prepared.
+            This is the preferred way to get a dependent type prepared because of it avoids issues with cycles and recursion.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilder.PrepareMethod(Internal.TypeSystem.MethodDesc)">
+            <summary>
+            Collects all dependencies that need to be created in order to create
+            the method that was passed in.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilder.PrepareType(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Collects all dependencies that need to be created in order to create
+            the type that was passed in.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilder.PrepareRuntimeInterfaces(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Recursively triggers preparation for a type's runtime interfaces
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilder.PrepareBaseTypeAndDictionaries(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Triggers preparation for a type's base types
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.TypeBuilder.GCLayout">
+            <summary>
+            Wraps information about how a type is laid out into one package.  Types may have been laid out by
+            TypeBuilder (which means they have a gc bitfield), or they could be types that were laid out by NUTC
+            (which means we only have a GCDesc for them).  This struct wraps both of those possibilities into
+            one package to be able to write that layout to another bitfield we are constructing.  (This is for
+            struct fields.)
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilder.GCLayout.WriteToBitfield(System.Collections.Generic.LowLevelList{System.Boolean},System.Int32)">
+            <summary>
+            Writes this layout to the given bitfield.
+            </summary>
+            <param name="bitfield">The bitfield to write a layout to (may be null, at which
+            point it will be created and assigned).</param>
+            <param name="offset">The offset at which we need to write the bitfield.</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilderState.FinishInitNativeLayoutInfo(Internal.TypeSystem.TypeDesc,Internal.Runtime.TypeLoader.NativeLayoutInfo@)">
+            <summary>
+            Initialize the Reader and LoadContext fields of the native layout info
+            </summary>
+            <param name="type"></param>
+            <param name="nativeLayoutInfo"></param>
+        </member>
+        <member name="P:Internal.Runtime.TypeLoader.TypeBuilderState.InstanceGCLayout">
+             <summary>
+             The instance gc layout of a dynamically laid out type.
+             null if one of the following is true
+                 1) For an array type:
+                     - the type is a reference array
+                 2) For a generic type:
+                     - the type has no GC instance fields
+                     - the type already has a type handle
+                     - the type has a non-universal canonical template
+                     - the type has already been constructed
+            
+             If the type is a valuetype array, this is the layout of the valuetype held in the array if the type has GC reference fields
+             Otherwise, it is the layout of the fields in the type.
+             </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilderState.PrepareStaticGCLayout">
+            <summary>
+            Prepare the StaticGCLayout/ThreadStaticGCLayout/GcStaticDesc/ThreadStaticDesc fields by
+            reading native layout or metadata as appropriate. This method should only be called for types which
+            are actually to be created.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeBuilderState.GetFieldGCLayout(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Get the GC layout of a type when used as a field.
+            NOTE: if the fieldtype is a reference type, this function will return GCLayout.None
+                  Consumers of the api must handle that special case.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetFieldAccessMetadata(Internal.Metadata.NativeFormat.MetadataReader,System.RuntimeTypeHandle,Internal.Metadata.NativeFormat.FieldHandle,Internal.Runtime.TypeLoader.FieldAccessMetadata@)">
+            <summary>
+            Try to look up field access info for given canon in metadata blobs for all available modules.
+            </summary>
+            <param name="metadataReader">Metadata reader for the declaring type</param>
+            <param name="runtimeTypeHandle">Declaring type for the method</param>
+            <param name="fieldHandle">Field handle</param>
+            <param name="fieldAccessMetadata">Output - metadata information for field accessor construction</param>
+            <returns>true when found, false otherwise</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetFieldAccessMetadataFromFieldAccessMap(System.RuntimeTypeHandle,Internal.Metadata.NativeFormat.FieldHandle,Internal.TypeSystem.CanonicalFormKind,Internal.Runtime.TypeLoader.FieldAccessMetadata@)">
+            <summary>
+            Try to look up field access info for given canon in metadata blobs for all available modules.
+            </summary>
+            <param name="declaringTypeHandle">Declaring type for the method</param>
+            <param name="fieldHandle">Field handle</param>
+            <param name="canonFormKind">Canonical form to use</param>
+            <param name="fieldAccessMetadata">Output - metadata information for field accessor construction</param>
+            <returns>true when found, false otherwise</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.GetNativeFormatStringForString(System.String)">
+            <summary>
+            From a string, get a pointer to an allocated memory location that holds a NativeFormat encoded string.
+            This is used for the creation of RuntimeFieldHandles from metadata.
+            </summary>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.GetRuntimeMethodHandleForComponents(System.RuntimeTypeHandle,System.IntPtr,Internal.Runtime.CompilerServices.RuntimeSignature,System.RuntimeTypeHandle[])">
+            <summary>
+            Create a runtime method handle from name, signature and generic arguments. If the methodSignature
+            is constructed from a metadata token, the methodName should be IntPtr.Zero, as it already encodes the method
+            name.
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.SequenceEqual``1(``0[],``0[])">
+            <summary>
+            Compare two arrays sequentially.
+            </summary>
+            <param name="seq1">First array to compare</param>
+            <param name="seq2">Second array to compare</param>
+            <returns>
+            true = arrays have the same values and Equals holds for all pairs of elements
+            with the same indices
+            </returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.GetNativeReaderForBlob(Internal.Runtime.TypeLoader.NativeFormatModuleInfo,Internal.Runtime.ReflectionMapBlob)">
+            <summary>
+            Locate blob with given ID and create native reader on it.
+            </summary>
+            <param name="module">Address of module to search for the blob</param>
+            <param name="blob">Blob ID within blob map for the module</param>
+            <returns>Native reader for the blob (asserts and returns an empty native reader when not found)</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetMetadataForNamedType(System.RuntimeTypeHandle,System.Reflection.Runtime.General.QTypeDefinition@)">
+             <summary>
+             Return the metadata handle for a TypeDef if the pay-for-policy enabled this type as browsable. This is used to obtain name and other information for types
+             obtained via typeof() or Object.GetType(). This can include generic types (not to be confused with generic instances).
+            
+             Preconditions:
+                runtimeTypeHandle is a typedef (not a constructed type such as an array or generic instance.)
+             </summary>
+             <param name="runtimeTypeHandle">Runtime handle of the type in question</param>
+             <param name="qTypeDefinition">TypeDef handle for the type</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetNamedTypeForMetadata(System.Reflection.Runtime.General.QTypeDefinition,System.RuntimeTypeHandle@)">
+             <summary>
+             Return the RuntimeTypeHandle for the named type described in metadata. This is used to implement the Create and Invoke
+             apis for types.
+            
+             Preconditions:
+                metadataReader + typeDefHandle  - a valid metadata reader + typeDefinitionHandle where "metadataReader" is one
+                                                  of the metadata readers returned by ExecutionEnvironment.MetadataReaders.
+            
+             Note: Although this method has a "bool" return value like the other mapping table accessors, the pay-for-play design
+             guarantees that any type enabled for metadata also has a RuntimeTypeHandle underneath.
+             </summary>
+             <param name="qTypeDefinition">TypeDef handle for the type to look up</param>
+             <param name="runtimeTypeHandle">Runtime type handle (MethodTable) for the given type</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetArrayTypeForNonDynamicElementType(System.RuntimeTypeHandle,System.Boolean,System.Int32,System.RuntimeTypeHandle@)">
+             <summary>
+             Given a RuntimeTypeHandle for any non-dynamic type E, return a RuntimeTypeHandle for type E[]
+             if the pay for play policy denotes E[] as browsable. This is used to implement Array.CreateInstance().
+             This is not equivalent to calling TryGetMultiDimTypeForElementType() with a rank of 1!
+            
+             Preconditions:
+                 elementTypeHandle is a valid RuntimeTypeHandle.
+             </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.GetStaticClassConstructionContext(System.RuntimeTypeHandle)">
+            <summary>
+            Locate the static constructor context given the runtime type handle (MethodTable) for the type in question.
+            </summary>
+            <param name="typeHandle">MethodTable of the type to look up</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetNativeReaderForBlob(Internal.Runtime.TypeLoader.NativeFormatModuleInfo,Internal.Runtime.ReflectionMapBlob,Internal.NativeFormat.NativeReader@)">
+            <summary>
+            Construct the native reader for a given blob in a specified module.
+            </summary>
+            <param name="module">Containing binary module for the blob</param>
+            <param name="blob">Blob ID to fetch from the module</param>
+            <param name="reader">Native reader created for the module blob</param>
+            <returns>true when the blob was found in the module, false when not</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetDefaultConstructorForType(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Look up the default constructor for a given type. Should not be called by code which has already initialized
+            the type system.
+            </summary>
+            <param name="type">TypeDesc for the type in question</param>
+            <returns>Function pointer representing the constructor, IntPtr.Zero when not found</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetDefaultConstructorForType(System.RuntimeTypeHandle)">
+            <summary>
+            Look up the default constructor for a given type. Should not be called by code which has already initialized
+            the type system.
+            </summary>
+            <param name="runtimeTypeHandle">Type handle (MethodTable) for the type in question</param>
+            <returns>Function pointer representing the constructor, IntPtr.Zero when not found</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetDefaultConstructorForType_Inner(Internal.Runtime.TypeLoader.NativeFormatModuleInfo,Internal.Runtime.TypeLoader.CanonicallyEquivalentEntryLocator@)">
+            <summary>
+            Attempt to locate the default type constructor in a given module.
+            </summary>
+            <param name="mappingTableModule">Module to search for the constructor</param>
+            <param name="canonHelper">Canonically equivalent entry locator representing the type</param>
+            <returns>Function pointer representing the constructor, IntPtr.Zero when not found</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetMethodInvokeMetadata(System.RuntimeTypeHandle,System.Reflection.Runtime.General.QMethodDefinition,System.RuntimeTypeHandle[],Internal.Runtime.TypeLoader.MethodSignatureComparer@,Internal.TypeSystem.CanonicalFormKind,Internal.Runtime.TypeLoader.MethodInvokeMetadata@)">
+            <summary>
+            Try to look up method invoke info for given canon.
+            </summary>
+            <param name="declaringTypeHandle">Declaring type for the method</param>
+            <param name="methodHandle">Method handle</param>
+            <param name="genericMethodTypeArgumentHandles">Handles of generic argument types</param>
+            <param name="methodSignatureComparer">Helper class used to compare method signatures</param>
+            <param name="canonFormKind">Canonical form to use</param>
+            <param name="methodInvokeMetadata">Output - metadata information for method invoker construction</param>
+            <returns>true when found, false otherwise</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetMethodInvokeMetadataFromInvokeMap(Internal.Metadata.NativeFormat.MetadataReader,System.RuntimeTypeHandle,Internal.Metadata.NativeFormat.MethodHandle,System.RuntimeTypeHandle[],Internal.Runtime.TypeLoader.MethodSignatureComparer@,Internal.TypeSystem.CanonicalFormKind,Internal.Runtime.TypeLoader.MethodInvokeMetadata@)">
+            <summary>
+            Try to look up method invoke info for given canon in InvokeMap blobs for all available modules.
+            </summary>
+            <param name="metadataReader">Metadata reader for the declaring type</param>
+            <param name="declaringTypeHandle">Declaring type for the method</param>
+            <param name="methodHandle">Method handle</param>
+            <param name="genericMethodTypeArgumentHandles">Handles of generic argument types</param>
+            <param name="methodSignatureComparer">Helper class used to compare method signatures</param>
+            <param name="canonFormKind">Canonical form to use</param>
+            <param name="methodInvokeMetadata">Output - metadata information for method invoker construction</param>
+            <returns>true when found, false otherwise</returns>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetNonGcStaticFieldData(System.RuntimeTypeHandle)">
+            <summary>
+            Get a pointer to the nongc static field data of a type. This function works for dynamic
+            types, reflectable types, and for all generic types
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetGcStaticFieldData(System.RuntimeTypeHandle)">
+            <summary>
+            Get a pointer to the gc static field data of a type. This function works for dynamic
+            types, reflectable types, and for all generic types
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.TypeLoaderEnvironment.TryGetThreadStaticFieldData(System.RuntimeTypeHandle)">
+            <summary>
+            Get a pointer to a pointer to the thread static field data of a type. This function works for all generic types
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.FieldAccessMetadata">
+            <summary>
+            Helper structure describing all info needed to construct dynamic field accessors.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.FieldAccessMetadata.MappingTableModule">
+            <summary>
+            Module containing the relevant metadata, null when not found
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.FieldAccessMetadata.Cookie">
+            <summary>
+            Cookie for field access. This field is set to IntPtr.Zero when the value is not available.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.FieldAccessMetadata.Flags">
+            <summary>
+            Field access and characteristics bitmask.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.FieldAccessMetadata.Offset">
+            <summary>
+            Field offset, address or cookie based on field access type.
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.MethodInvokeMetadata">
+            <summary>
+            This structure represents metadata-based information used to construct method invokers.
+            TypeLoaderEnvironment.TryGetMethodInvokeMetadata fills in this structure based on metadata lookup across
+            all currently registered binary modules.
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodInvokeMetadata.MappingTableModule">
+            <summary>
+            module containing the relevant metadata, null when not found
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodInvokeMetadata.MethodEntryPoint">
+            <summary>
+            Method entrypoint
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodInvokeMetadata.RawMethodEntryPoint">
+            <summary>
+            Raw method entrypoint
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodInvokeMetadata.DictionaryComponent">
+            <summary>
+            Method dictionary for components
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodInvokeMetadata.DynamicInvokeCookie">
+            <summary>
+            Dynamic invoke cookie
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodInvokeMetadata.InvokeTableFlags">
+            <summary>
+            Invoke flags
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodSignatureComparer._metadataReader">
+            <summary>
+            Metadata reader corresponding to the method declaring type
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodSignatureComparer._methodHandle">
+            <summary>
+            Method handle
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodSignatureComparer._method">
+            <summary>
+            Method instance obtained from the method handle
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodSignatureComparer._methodSignature">
+            <summary>
+            Method signature
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodSignatureComparer._isStatic">
+            <summary>
+            true = this is a static method
+            </summary>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.MethodSignatureComparer._isGeneric">
+            <summary>
+            true = this is a generic method
+            </summary>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.MethodSignatureComparer.#ctor(Internal.Metadata.NativeFormat.MetadataReader,Internal.Metadata.NativeFormat.MethodHandle)">
+            <summary>
+            Construct a comparer between NativeFormat metadata methods and native layouts
+            </summary>
+            <param name="metadataReader">Metadata reader for the method declaring type</param>
+            <param name="methodHandle">Handle of method to compare</param>
+        </member>
+        <member name="M:Internal.Runtime.TypeLoader.MethodSignatureComparer.GetNativeParserForSignature(Internal.Runtime.CompilerServices.RuntimeSignature)">
+            <summary>
+            Look up module containing given nativesignature and return the appropriate native parser.
+            </summary>
+            <param name="signature">Signature to look up</param>
+            <returns>Native parser for the signature</returns>
+        </member>
+        <member name="F:Internal.Runtime.TypeLoader.TypeLoaderLogger.s_pauseHash">
+            <summary>
+            Variable used to pause the runtime when a given message appears. To use this feature
+            attach a debugger to the process and set s_pauseHash to the hash code early in process
+            execution
+            </summary>
+        </member>
+        <member name="T:Internal.Runtime.TypeLoader.TypeLoaderTypeSystemContext">
+            <summary>
+            TypeSystemContext that can interfact with the
+            Redhawk runtime type system and native metadata
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.ArrayType">
+            <summary>
+            Represents an array type - either a multidimensional array, or a vector
+            (a one-dimensional array with a zero lower bound).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.ArrayType.ElementType">
+            <summary>
+            Gets the type of the element of this array.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.ArrayType.IsSzArray">
+            <summary>
+            Gets a value indicating whether this type is a vector.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.ArrayType.IsMdArray">
+            <summary>
+            Gets a value indicating whether this type is an mdarray.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.ArrayType.Rank">
+            <summary>
+            Gets the rank of this array. Note this returns "1" for both vectors, and
+            for general arrays of rank 1. Use <see cref="P:Internal.TypeSystem.ArrayType.IsSzArray"/> to disambiguate.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.ArrayMethod">
+            <summary>
+            Represents one of the methods on array types. While array types are not typical
+            classes backed by metadata, they do have methods that can be referenced from the IL
+            and the type system needs to provide a way to represent them.
+            </summary>
+            <remarks>
+            There are two array Address methods (<see cref="F:Internal.TypeSystem.ArrayMethodKind.Address"/> and
+            <see cref="F:Internal.TypeSystem.ArrayMethodKind.AddressWithHiddenArg"/>). One is used when referencing Address
+            method from IL, the other is used when *compiling* the method body.
+            The reason we need to do this is that the Address method is required to do a type check using a type
+            that is only known at the callsite. The trick we use is that we tell codegen that the
+            <see cref="F:Internal.TypeSystem.ArrayMethodKind.Address"/> method requires a hidden instantiation parameter (even though it doesn't).
+            The instantiation parameter is where we capture the type at the callsite.
+            When we compile the method body, we compile it as <see cref="F:Internal.TypeSystem.ArrayMethodKind.AddressWithHiddenArg"/> that
+            has the hidden argument explicitly listed in it's signature and is available as a regular parameter.
+            </remarks>
+        </member>
+        <member name="T:Internal.TypeSystem.ByRefType">
+            <summary>
+            Represents a managed pointer type.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.CanonicalFormKind">
+            <summary>
+            Type of canonicalization applied to a type
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.CanonicalFormKind.Specific">
+            <summary>
+            Optimized for a particular set of instantiations (such as reference types)
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.CanonicalFormKind.Universal">
+            <summary>
+            Canonicalization that works for any type
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.CanonicalFormKind.Any">
+            <summary>
+            Value used for lookup for Specific or Universal. Must not be used for canonicalizing.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.CanonBaseType">
+            <summary>
+            Base class for specialized and universal canon types
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.CanonType">
+            <summary>
+            Type used for specific canonicalization (e.g. for reference types)
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.UniversalCanonType">
+            <summary>
+            Type that can be used for canonicalization of any type (including value types of unknown size)
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.DefType">
+            <summary>
+            Type that is logically equivalent to a type which is defined by a TypeDef
+            record in an ECMA 335 metadata stream - a class, an interface, or a value type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.DefType.Namespace">
+            <summary>
+            Gets the namespace of the type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.DefType.Name">
+            <summary>
+            Gets the name of the type as represented in the metadata.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.DefType.ContainingType">
+            <summary>
+            Gets the containing type of this type or null if the type is not nested.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.FunctionPointerType">
+            <summary>
+            Represents an unmanaged pointer to a method with a signature compatible with the signature of the pointer.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.FunctionPointerType.Signature">
+            <summary>
+            Gets the signature of the method this pointer points to.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.Name">
+            <summary>
+            Gets the name of the generic parameter as defined in the metadata.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.Kind">
+            <summary>
+            Gets a value indicating whether this is a type or method generic parameter.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.Index">
+            <summary>
+            Gets the zero based index of the generic parameter within the declaring type or method.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.AssociatedTypeOrMethod">
+            <summary>
+            The associated type or method which defines this Generic Parameter
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.Variance">
+            <summary>
+            Gets a value indicating the variance of this generic parameter.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.Constraints">
+            <summary>
+            Gets a value indicating generic constraints of this generic parameter.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.TypeConstraints">
+            <summary>
+            Gets type constraints imposed on substitutions.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.HasNotNullableValueTypeConstraint">
+            <summary>
+            Does this generic parameter have the NotNullableValueType constraint flag
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.HasReferenceTypeConstraint">
+            <summary>
+            Does this generic parameter have the ReferenceType constraint flag
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.HasDefaultConstructorConstraint">
+            <summary>
+            Does this generic parameter have the DefaultConstructor constraint flag
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.HasAllowByRefLikeConstraint">
+            <summary>
+            Does this generic parameter have the AllowByRefLike flag
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.IsCovariant">
+            <summary>
+            Is this generic parameter Covariant
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.GenericParameterDesc.IsContravariant">
+            <summary>
+            Is this generic parameter Contravariant
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.InstantiatedMethod._specificCanonCache">
+            <summary>
+            Stores a cached version of the canonicalized form of this method since
+            calculating it is a recursive operation
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.InstantiatedMethod.GetCanonMethodTarget(Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Returns the result of canonicalizing this method over the given kind of Canon
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.InstantiatedMethod.IsCanonicalMethod(Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            True if either the containing type instantiation or any of this method's generic arguments
+            are canonical
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.InstantiatedMethod.NeedsDictionary">
+            <summary>
+            Does this method need a dictionary?
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.InstantiatedMethod.RuntimeMethodDictionary">
+            <summary>
+            IntPtr pointing at allocated method generic dictionary.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.InstantiatedMethod.AssociateWithRuntimeMethodDictionary(System.IntPtr)">
+            <summary>
+            Attach a generic dictionary to this method
+            </summary>
+            <param name="rmd"></param>
+        </member>
+        <member name="M:Internal.TypeSystem.InstantiatedType.InstantiateTypeArray``1(``0[],Internal.TypeSystem.Instantiation,Internal.TypeSystem.Instantiation)">
+            <summary>
+            Instantiate an array of TypeDescs over typeInstantiation and methodInstantiation
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.MethodDesc">
+            <summary>
+            Represents the fundamental base type for all methods within the type system.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.MethodDesc.GetCanonMethodTarget(Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Returns the result of canonicalizing this method over the given kind of Canon
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.MethodDesc.SetHashCode(System.Int32)">
+            <summary>
+            Allows a performance optimization that skips the potentially expensive
+            construction of a hash code if a hash code has already been computed elsewhere.
+            Use to allow objects to have their hashcode computed
+            independently of the allocation of a MethodDesc object
+            For instance, compute the hashcode when looking up the object,
+            then when creating the object, pass in the hashcode directly.
+            The hashcode specified MUST exactly match the algorithm implemented
+            on this type normally.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.MethodDesc.ComputeHashCode">
+            <summary>
+            Compute HashCode. This hashcode is persisted into the image.
+            The algorithm to compute it must be in sync with the one used at runtime.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.OwningType">
+            <summary>
+            Gets the type that owns this method. This will be a <see cref="T:Internal.TypeSystem.DefType"/> or
+            an <see cref="T:Internal.TypeSystem.ArrayType"/>.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.Signature">
+            <summary>
+            Gets the signature of the method.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.Instantiation">
+            <summary>
+            Gets the generic instantiation information of this method.
+            For generic definitions, retrieves the generic parameters of the method.
+            For generic instantiation, retrieves the generic arguments of the method.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.HasInstantiation">
+            <summary>
+            Gets a value indicating whether this method has a generic instantiation.
+            This will be true for generic method instantiations and generic definitions.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsConstructor">
+            <summary>
+            Gets a value indicating whether this method is an instance constructor.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsDefaultConstructor">
+            <summary>
+            Gets a value indicating whether this is a public parameterless instance constructor
+            on a non-abstract type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsStaticConstructor">
+            <summary>
+            Gets a value indicating whether this method is a static constructor.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.Name">
+            <summary>
+            Gets the name of the method as specified in the metadata.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsVirtual">
+            <summary>
+            Gets a value indicating whether the method is virtual.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsNewSlot">
+            <summary>
+            Gets a value indicating whether this virtual method should not override any
+            virtual methods defined in any of the base classes.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsAbstract">
+            <summary>
+            Gets a value indicating whether this virtual method needs to be overridden
+            by all non-abstract classes deriving from the method's owning type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsFinal">
+            <summary>
+            Gets a value indicating that this method cannot be overridden.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.MethodDesc.GetMethodDefinition">
+            <summary>
+            Retrieves the uninstantiated form of the method on the method's <see cref="P:Internal.TypeSystem.MethodDesc.OwningType"/>.
+            For generic methods, this strips method instantiation. For non-generic methods, returns 'this'.
+            To also strip instantiation of the owning type, use <see cref="M:Internal.TypeSystem.MethodDesc.GetTypicalMethodDefinition"/>.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsMethodDefinition">
+            <summary>
+            Gets a value indicating whether this is a method definition. This property
+            is true for non-generic methods and for uninstantiated generic methods.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.MethodDesc.GetTypicalMethodDefinition">
+            <summary>
+            Retrieves the generic definition of the method on the generic definition of the owning type.
+            To only uninstantiate the method without uninstantiating the owning type, use <see cref="M:Internal.TypeSystem.MethodDesc.GetMethodDefinition"/>.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsTypicalMethodDefinition">
+            <summary>
+            Gets a value indicating whether this is a typical definition. This property is true
+            if neither the owning type, nor the method are instantiated.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.IsGenericMethodDefinition">
+            <summary>
+            Gets a value indicating whether this is an uninstantiated generic method.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodDesc.FunctionPointer">
+            <summary>
+            Pointer to function's code. May be IntPtr.Zero
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.PointerType">
+            <summary>
+            Represents an unmanaged pointer type.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.StandardCanonicalizationAlgorithm">
+            <summary>
+            Contains utility functionality for canonicalization used by multiple types.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.StandardCanonicalizationAlgorithm.ConvertInstantiationToCanonForm(Internal.TypeSystem.Instantiation,Internal.TypeSystem.CanonicalFormKind,System.Boolean@)">
+            <summary>
+            Returns a new instantiation that canonicalizes all types in <paramref name="instantiation"/>
+            if possible under the policy of '<paramref name="kind"/>'
+            </summary>
+            <param name="instantiation">Instantiation to canonicalize.</param>
+            <param name="kind">The type of canonicalization to apply.</param>
+            <param name="changed">True if the returned instantiation is different from '<paramref name="instantiation"/>'.</param>
+        </member>
+        <member name="T:Internal.TypeSystem.TypeDesc">
+            <summary>
+            Represents the fundamental base type of all types within the type system.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.TypeDesc._specificCanonCache">
+            <summary>
+            Stores a cached version of the canonicalized form of this type since
+            calculating it is a recursive operation
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.ConvertToCanonForm(Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Returns the canonical form of this type
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.ConvertToCanonFormImpl(Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Derived types that override this should convert their generic parameters to canonical ones
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.IsCanonicalSubtype(Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Returns true if this type matches the discovery policy or if it's parameterized over one that does.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsCanonicalType">
+            <summary>
+            Gets a value indicating whether this type is considered to be canonical type.
+            Note this will only return true if this is type is the actual __Canon/__UniversalCanon type,
+            or a struct instantiated over one of those. See also <see cref="M:Internal.TypeSystem.TypeDesc.IsCanonicalSubtype(Internal.TypeSystem.CanonicalFormKind)"/>.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetHashCode">
+            Inherited types are required to override, and should use the algorithms
+            in TypeHashingAlgorithms in their implementation.
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.Instantiation">
+            <summary>
+            Gets the generic instantiation information of this type.
+            For generic definitions, retrieves the generic parameters of the type.
+            For generic instantiation, retrieves the generic arguments of the type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.HasInstantiation">
+            <summary>
+            Gets a value indicating whether this type has a generic instantiation.
+            This will be true for generic type instantiations and generic definitions.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.Category">
+            <summary>
+            Retrieves the category of the type. This is one of the possible values of
+            <see cref="T:Internal.TypeSystem.TypeFlags"/> less than <see cref="F:Internal.TypeSystem.TypeFlags.CategoryMask"/>.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsInterface">
+            <summary>
+            Gets a value indicating whether this type is an interface type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsValueType">
+            <summary>
+            Gets a value indicating whether this type is a value type (not a reference type).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsPrimitive">
+            <summary>
+            Gets a value indicating whether this is one of the primitive types (boolean, char, void,
+            a floating-point, or an integer type).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsPrimitiveNumeric">
+            <summary>
+            Gets a value indicating whether this is one of the primitive numeric types
+            (a floating-point or an integer type).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsEnum">
+            <summary>
+            Gets a value indicating whether this is an enum type.
+            Access <see cref="P:Internal.TypeSystem.TypeDesc.UnderlyingType"/> to retrieve the underlying integral type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsDelegate">
+            <summary>
+            Gets a value indicating whether this is a delegate type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsVoid">
+            <summary>
+            Gets a value indicating whether this is System.Void type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsString">
+            <summary>
+            Gets a value indicating whether this is System.String type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsObject">
+            <summary>
+            Gets a value indicating whether this is System.Object type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsNullable">
+            <summary>
+            Gets a value indicating whether this is a generic definition, or
+            an instance of System.Nullable`1.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsArray">
+            <summary>
+            Gets a value indicating whether this is an array type (<see cref="T:Internal.TypeSystem.ArrayType"/>).
+            Note this will return true for both multidimensional array types and vector types.
+            Use <see cref="P:Internal.TypeSystem.TypeDesc.IsSzArray"/> to check for vector types.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsSzArray">
+            <summary>
+            Gets a value indicating whether this is a vector type. A vector is a single-dimensional
+            array with a zero lower bound. To check for arrays in general, use <see cref="P:Internal.TypeSystem.TypeDesc.IsArray"/>.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsMdArray">
+            <summary>
+            Gets a value indicating whether this is a non-vector array type.
+            To check for arrays in general, use <see cref="P:Internal.TypeSystem.TypeDesc.IsArray"/>.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsByRef">
+            <summary>
+            Gets a value indicating whether this is a managed pointer type (<see cref="T:Internal.TypeSystem.ByRefType"/>).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsPointer">
+            <summary>
+            Gets a value indicating whether this is an unmanaged pointer type (<see cref="T:Internal.TypeSystem.PointerType"/>).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsFunctionPointer">
+            <summary>
+            Gets a value indicating whether this is an unmanaged function pointer type (<see cref="T:Internal.TypeSystem.FunctionPointerType"/>).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsSignatureVariable">
+            <summary>
+            Gets a value indicating whether this is a <see cref="T:Internal.TypeSystem.SignatureTypeVariable"/> or <see cref="T:Internal.TypeSystem.SignatureMethodVariable"/>.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsGenericParameter">
+            <summary>
+            Gets a value indicating whether this is a generic parameter (<see cref="T:Internal.TypeSystem.GenericParameterDesc"/>).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsParameterizedType">
+            <summary>
+            Gets a value indicating whether this is a pointer, byref, array, or szarray type,
+            and can be used as a ParameterizedType.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsDefType">
+            <summary>
+            Gets a value indicating whether this is a class, an interface, a value type, or a
+            generic instance of one of them.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsGCPointer">
+            <summary>
+            Gets a value indicating whether locations of this type refer to an object on the GC heap.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.BaseType">
+            <summary>
+            Gets the type from which this type derives from, or null if there's no such type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.HasBaseType">
+            <summary>
+            Gets a value indicating whether this type has a base type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.UnderlyingType">
+            <summary>
+            If this is an enum type, gets the underlying integral type of the enum type.
+            For all other types, returns 'this'.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.HasStaticConstructor">
+            <summary>
+            Gets a value indicating whether this type has a class constructor method.
+            Use <see cref="M:Internal.TypeSystem.TypeDesc.GetStaticConstructor"/> to retrieve it.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetMethods">
+            <summary>
+            Gets all methods on this type defined within the type's metadata.
+            This will not include methods injected by the type system context.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetVirtualMethods">
+            <summary>
+            Gets a subset of methods returned by <see cref="M:Internal.TypeSystem.TypeDesc.GetMethods"/> that are virtual.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetMethod(System.String,Internal.TypeSystem.MethodSignature)">
+            <summary>
+            Gets a named method on the type. This method only looks at methods defined
+            in type's metadata. The <paramref name="signature"/> parameter can be null.
+            If signature is not specified and there are multiple matches, the first one
+            is returned. Returns null if method not found.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetMethod(System.String,Internal.TypeSystem.MethodSignature,Internal.TypeSystem.Instantiation)">
+            <summary>
+            Gets a named method on the type. This method only looks at methods defined
+            in type's metadata. The <paramref name="signature"/> parameter can be null.
+            If signature is not specified and there are multiple matches, the first one
+            is returned. If substitution is not null, then substitution will be applied to
+            possible target methods before signature comparison. Returns null if method not found.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetStaticConstructor">
+            <summary>
+            Retrieves the class constructor method of this type.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetDefaultConstructor">
+            <summary>
+            Retrieves the public parameterless constructor method of the type, or null if there isn't one
+            or the type is abstract.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetFields">
+            <summary>
+            Gets all fields on the type as defined in the metadata.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetField(System.String)">
+            <summary>
+            Gets a named field on the type. Returns null if the field wasn't found.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetTypeDefinition">
+            <summary>
+            Gets the definition of the type. If this is a generic type instance,
+            this method strips the instantiation (E.g C&lt;int&gt; -> C&lt;T&gt;)
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsTypeDefinition">
+            <summary>
+            Gets a value indicating whether this is a type definition. Returns false
+            if this is an instantiated generic type.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.HasSameTypeDefinition(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Determine if two types share the same type definition
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.HasFinalizer">
+            <summary>
+            Gets a value indicating whether this type has a finalizer method.
+            Use <see cref="M:Internal.TypeSystem.TypeDesc.GetFinalizer"/> to retrieve the method.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetFinalizer">
+            <summary>
+            Gets the finalizer method (an override of the System.Object::Finalize method)
+            if this type has one. Returns null if the type doesn't define one.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.HasVariance">
+            <summary>
+            Gets a value indicating whether this type has generic variance (the definition of the type
+            has a generic parameter that is co- or contravariant).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsGenericDefinition">
+            <summary>
+            Gets a value indicating whether this type is an uninstantiated definition of a generic type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsByRefLike">
+            <summary>
+            Gets a value indicating whether this is a byref-like type
+            (a <code>TypedReference</code>, <code>Span&lt;T&gt;</code>, etc.).
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.IsIDynamicInterfaceCastable">
+            <summary>
+            Gets a value indicating whether this type implements <code>IDynamicInterfaceCastable</code>
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeDesc.RuntimeInterfaces">
+             <summary>
+             The interfaces implemented by this type at runtime. There may be duplicates in this list.
+             </summary>
+            
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.SetRuntimeTypeHandleUnsafe(System.RuntimeTypeHandle)">
+            <summary>
+             Setter for RuntimeTypeHandle. Separate from normal property as all uses should be done with great care.
+             Must not be set with partially constructed type handles
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.GetRuntimeTypeHandle">
+            <summary>
+            Get the RuntimeTypeHandle if possible and return it. Otherwise, return a null RuntimeTypeHandle
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeDesc.ParseBaseType(Internal.Runtime.TypeLoader.NativeLayoutInfoLoadContext,Internal.NativeFormat.NativeParser)">
+            Parse the native layout to ensure that the type has proper base type setup.
+            This is used to generalize out some behavior of NoMetadataTypes which actually use this information
+        </member>
+        <member name="P:Internal.TypeSystem.TypeSystemContext.CanonType">
+            <summary>
+            Instance of System.__Canon for this context
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeSystemContext.UniversalCanonType">
+            <summary>
+            Instance of System.__UniversalCanon for this context
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.IsCanonicalDefinitionType(Internal.TypeSystem.TypeDesc,Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Returns true if and only if the '<paramref name="type"/>' is __Canon or __UniversalCanon
+            that matches the <paramref name="kind"/> parameter.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.ConvertInstantiationToCanonForm(Internal.TypeSystem.Instantiation,Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Converts an instantiation into its canonical form.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.ConvertInstantiationToCanonForm(Internal.TypeSystem.Instantiation,Internal.TypeSystem.CanonicalFormKind,System.Boolean@)">
+            <summary>
+            Converts an instantiation into its canonical form. Returns the canonical instantiation. The '<paramref name="changed"/>'
+            parameter indicates whether the returned canonical instantiation is different from the specific instantiation
+            passed as the input.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.ConvertToCanon(Internal.TypeSystem.TypeDesc,Internal.TypeSystem.CanonicalFormKind)">
+            <summary>
+            Converts a constituent of a constructed type to it's canonical form. Note this method is different
+            from <see cref="M:Internal.TypeSystem.TypeDesc.ConvertToCanonForm(Internal.TypeSystem.CanonicalFormKind)"/>.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.GetRuntimeInterfacesAlgorithmForType(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Abstraction to allow the type system context to control the interfaces
+            algorithm used by types.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.GetRuntimeInterfacesAlgorithmForDefType(Internal.TypeSystem.DefType)">
+            <summary>
+            Abstraction to allow the type system context to control the interfaces
+            algorithm used by types.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.GetRuntimeInterfacesAlgorithmForNonPointerArrayType(Internal.TypeSystem.ArrayType)">
+            <summary>
+            Abstraction to allow the type system context to control the interfaces
+            algorithm used by single dimensional array types.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.ComputeTypeFlags(Internal.TypeSystem.TypeDesc,Internal.TypeSystem.TypeFlags,Internal.TypeSystem.TypeFlags)">
+            <summary>
+            TypeSystemContext controlled type flags computation. This allows computation of flags which depend
+            on the particular TypeSystemContext in use
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.ComputeHasStaticConstructor(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Algorithm to control which types are considered to have static constructors
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.IsIDynamicInterfaceCastableInterface(Internal.TypeSystem.DefType)">
+            <summary>
+            Determine if the type implements <code>IDynamicInterfaceCastable</code>
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.GetArrayTypesCache(System.Boolean,System.Int32)">
+            <summary>
+             Cache of array types created by the builder to prevent duplication
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeSystemContext.PointerTypesCache">
+            <summary>
+            Cache of pointer types created by the builder to prevent duplication
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeSystemContext.ByRefTypesCache">
+            <summary>
+            Cache of ByRef types created by the builder to prevent duplication
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.ResolveGenericInstantiation(Internal.TypeSystem.DefType,Internal.TypeSystem.Instantiation)">
+            <summary>
+            Get a DefType that is the generic instantiation of an open generic type over instantiation arguments
+            This looks like a rename of GetInstantiatedType, but isn't because the GetInstantiatedType
+            relies on typeDef being a MetadataType, whereas this permits non-metadata types.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.ResolveGenericMethodInstantiation(System.Boolean,Internal.TypeSystem.DefType,Internal.Runtime.CompilerServices.MethodNameAndSignature,Internal.TypeSystem.Instantiation)">
+            <summary>
+            Find a method based on owner type and nativelayout name, method instantiation, and signature.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeSystemContext.LoadFactor">
+            <summary>
+            Returns an estimate of the number of objects tracked by this context
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.RegisterTypeForTypeSystemStateFlushing(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Register the types that will get their attached TypeSystemState flushed if the
+            type system context is recycled
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TypeSystemContext.FlushTypeBuilderStates">
+            <summary>
+            Remove the type system contexts from every type in this context that has one.
+            This function must be called before a TypeSystemContext is recycled
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.BaseTypeRuntimeInterfacesAlgorithm">
+            <summary>
+            RuntimeInterfaces algorithm for types known to have no explicitly defined interfaces
+            but which do have a base type. (For instance multidimensional arrays)
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.CastingHelper.CanCastTo(Internal.TypeSystem.TypeDesc,Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Returns true if '<paramref name="thisType"/>' can be cast to '<paramref name="otherType"/>'.
+            Assumes '<paramref name="thisType"/>' is in it's boxed form if it's a value type (i.e.
+            [System.Int32].CanCastTo([System.Object]) will return true).
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.CastingHelper.GetReducedTypeElementType(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Get TypeFlags of the reduced type of a type.
+            The reduced type concept is described in ECMA 335 chapter I.8.7
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.CastingHelper.GetVerificationTypeElementType(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Get CorElementType of the verification type of a type.
+            The verification type concepts is described in ECMA 335 chapter I.8.7
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.CastingHelper.AreVerificationTypesEqual(Internal.TypeSystem.TypeDesc,Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Check if verification types of two types are equal
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.CastingHelper.IsMethodSignatureCompatibleWith(Internal.TypeSystem.TypeDesc,Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Check if signatures of two function pointers are compatible
+            Note - this is a simplified version of what's described in the ECMA spec and it considers
+            pointers to be method-signature-compatible-with only if the signatures are the same.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.CastingHelper.IsCompatibleWith(Internal.TypeSystem.TypeDesc,Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Checks if two types are compatible according to compatible-with as described in ECMA 335 I.8.7.1
+            Most of the checks are performed by the CanCastTo, but some cases are pre-filtered out.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.GenericVariance">
+            <summary>
+            Describes the variance on a generic type parameter of a generic type or method.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.GenericVariance.Covariant">
+            <summary>
+            The generic type parameter is covariant. A covariant type parameter can appear
+            as the result type of a method, the type of a read-only field, a declared base
+            type, or an implemented interface.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.GenericVariance.Contravariant">
+            <summary>
+            The generic type parameter is contravariant. A contravariant type parameter can
+            appear as a parameter type in method signatures.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.GenericConstraints">
+            <summary>
+            Describes the constraints on a generic type parameter of a generic type or method.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.GenericConstraints.ReferenceTypeConstraint">
+            <summary>
+            A type can be substituted for the generic type parameter only if it is a reference type.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.GenericConstraints.NotNullableValueTypeConstraint">
+            <summary>
+            A type can be substituted for the generic type parameter only if it is a value
+            type and is not nullable.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.GenericConstraints.DefaultConstructorConstraint">
+            <summary>
+            A type can be substituted for the generic type parameter only if it has a parameterless
+            constructor.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.GenericConstraints.AllowByRefLike">
+            <summary>
+            A type is permitted to be ByRefLike.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.IAssemblyDesc">
+            <summary>
+            Optional interface a <see cref="T:Internal.TypeSystem.ModuleDesc"/> should implement if it represents an assembly.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.IAssemblyDesc.GetName">
+            <summary>
+            Gets the assembly name.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.Instantiation">
+            <summary>
+            Represents a generic instantiation - a collection of generic parameters
+            or arguments of a generic type or a generic method.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.Instantiation.ComputeGenericInstanceHashCode(System.Int32)">
+            <summary>
+            Combines the given generic definition's hash code with the hashes
+            of the generic parameters in this instantiation
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.Instantiation.Enumerator">
+            <summary>
+            Enumerator for iterating over the types in an instantiation
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.LayoutInt">
+            <summary>
+            A integer type used for layout calculations. Supports addition, max, min, comparison and alignup operations
+            A custom type is used to allow the concept of an indeterminate value. (Some types representable in the
+            type system do not have a known size. This type is used to make such sizes viral through the type layout
+            computations)
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.MethodSignature">
+            <summary>
+            Represents the parameter types, the return type, and flags of a method.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodSignature.Parameter(System.Int32)">
+            <summary>
+            Gets the parameter type at the specified index.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.MethodSignature.Length">
+            <summary>
+            Gets the number of parameters of this method signature.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.MethodSignatureBuilder">
+            <summary>
+            Helper structure for building method signatures by cloning an existing method signature.
+            </summary>
+            <remarks>
+            This can potentially avoid array allocation costs for allocating the parameter type list.
+            </remarks>
+        </member>
+        <member name="P:Internal.TypeSystem.ModuleDesc.Assembly">
+            <summary>
+            Gets the assembly this module is part of (the assembly manifest module).
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.ModuleDesc.GetType(System.String,System.String,System.Boolean)">
+            <summary>
+            Gets a type in this module or null.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.ModuleDesc.GetType(System.String,System.String,Internal.TypeSystem.NotFoundBehavior)">
+            <summary>
+            Gets a type in this module with the specified name, a resolution failure object, or null.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.ModuleDesc.GetGlobalModuleType">
+            <summary>
+            Gets the global &lt;Module&gt; type.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.ModuleDesc.GetAllTypes">
+            <summary>
+            Retrieves a collection of all types defined in the current module. This includes nested types.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.RuntimeInterfacesAlgorithm">
+            <summary>
+            Pluggable RuntimeInterfaces computation algorithm. Provides an abstraction to compute
+            the list of interfaces effectively implemented by a type at runtime.
+            The computed list is exposed as <see cref="P:Internal.TypeSystem.TypeDesc.RuntimeInterfaces"/>.
+            </summary>
+            <remarks>
+            The algorithms are expected to be directly used by <see cref="T:Internal.TypeSystem.TypeSystemContext"/> derivatives
+            only. The most obvious implementation of this algorithm that uses type's metadata to
+            compute the answers is in MetadataRuntimeInterfacesAlgorithm.
+            </remarks>
+        </member>
+        <member name="M:Internal.TypeSystem.RuntimeInterfacesAlgorithm.ComputeRuntimeInterfaces(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Compute the RuntimeInterfaces for a TypeDesc, is permitted to depend on
+            RuntimeInterfaces of base type, but must not depend on any other
+            details of the base type.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.TargetArchitecture">
+            <summary>
+            Specifies the target CPU architecture.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.TargetOS">
+            <summary>
+            Specifies the target ABI.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.TargetAbi.NativeAot">
+            <summary>
+            Cross-platform console model
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.TargetAbi.NativeAotArmel">
+            <summary>
+            model for armel execution model
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.TargetDetails">
+            <summary>
+            Represents various details about the compilation target that affect
+            layout, padding, allocations, or ABI.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.Architecture">
+            <summary>
+            Gets the target CPU architecture.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.OperatingSystem">
+            <summary>
+            Gets the target ABI.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.PointerSize">
+            <summary>
+            Gets the size of a pointer for the target of the compilation.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.MaximumAlignment">
+            <summary>
+            Gets the maximum alignment to which something can be aligned
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.DefaultPackingSize">
+            <summary>
+            Gets the default field packing size.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.MinimumFunctionAlignment">
+            <summary>
+            Gets the minimum required alignment for methods whose address is visible
+            to managed code.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.OptimumFunctionAlignment">
+            <summary>
+            Gets the alignment that is optimal for this platform.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.MaximumLog2PrimitiveSize">
+            <summary>
+            Gets the dyadic logarithm of the maximum size of a primitive type
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.MaximumPrimitiveSize">
+            <summary>
+            Gets the maximum size of a primitive type
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TargetDetails.GetWellKnownTypeSize(Internal.TypeSystem.DefType)">
+            <summary>
+            Retrieves the size of a well known type.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TargetDetails.GetWellKnownTypeAlignment(Internal.TypeSystem.DefType)">
+            <summary>
+            Retrieves the alignment required by a well known type.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.TargetDetails.GetObjectAlignment(Internal.TypeSystem.LayoutInt)">
+            <summary>
+            Given an alignment of the fields of a type, determine the alignment that is necessary for allocating the object on the GC heap
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.IsWindows">
+            <summary>
+            Returns True if compiling for Windows
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.IsApplePlatform">
+            <summary>
+            Returns True if compiling for Apple family of operating systems.
+            Currently including OSX, MacCatalyst, iOS, iOSSimulator, tvOS and tvOSSimulator
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.MaxHomogeneousAggregateElementCount">
+            <summary>
+            Maximum number of elements in a homogeneous aggregate type.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.CodeDelta">
+            <summary>
+            CodeDelta - encapsulate the fact that ARM requires a thumb bit
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TargetDetails.SupportsAlign8">
+            <summary>
+            Encapsulates the fact that some architectures require 8-byte (larger than pointer
+            size) alignment on some value types and arrays.
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.TypeSystemEntity.Context">
+            <summary>
+            Gets the type system context this entity belongs to.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2">
+            <summary>
+            A hash table which is lock free for readers and up to 1 writer at a time.
+            It must be possible to compute the key's hashcode from a value.
+            All values must convertible to/from an IntPtr.
+            It must be possible to perform an equality check between a key and a value.
+            It must be possible to perform an equality check between a value and a value.
+            A LockFreeReaderKeyValueComparer must be provided to perform these operations.
+            This hashtable may not store a pointer to null or (void*)1
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2._hashtable">
+            <summary>
+            _hashtable is the currently visible underlying array for the hashtable
+            Any modifications to this array must be additive only, and there must
+            never be a situation where the visible _hashtable has less data than
+            it did at an earlier time. This value is initialized to an array of size
+            1. (That array is never mutated as any additions will trigger an Expand
+            operation, but we don't use an empty array as the
+            initial step, as this approach allows the TryGetValue logic to always
+            succeed without needing any length or null checks.)
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2._newHashTable">
+            <summary>
+            Tracks the hashtable being used by expansion. Used as a sentinel
+            to threads trying to add to the old hashtable that an expansion is
+            in progress.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2._count">
+            <summary>
+            _count represents the current count of elements in the hashtable
+            _count is used in combination with _resizeCount to control when the
+            hashtable should expand
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2._reserve">
+            <summary>
+            Represents _count plus the number of potential adds currently happening.
+            If this reaches _hashTable.Length-1, an expansion is required (because
+            one slot must always be null for seeks to complete).
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2._resizeCount">
+            <summary>
+            _resizeCount represents the size at which the hashtable should resize.
+            While this doesn't strictly need to be volatile, having threads read stale values
+            triggers a lot of unneeded attempts to expand.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.GetCurrentHashtable">
+            <summary>
+            Get the underlying array for the hashtable at this time.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.SetCurrentHashtable(System.IntPtr[])">
+            <summary>
+            Set the newly visible hashtable underlying array. Used by writers after
+            the new array is fully constructed. The volatile write is used to ensure
+            that all writes to the contents of hashtable are completed before _hashtable
+            is visible to readers.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.HashInt1(System.Int32)">
+            <summary>
+            Used to ensure that the hashtable can function with
+            fairly poor initial hash codes.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.HashInt2(System.Int32)">
+            <summary>
+            Generate a somewhat independent hash value from another integer. This is used
+            as part of a double hashing scheme. By being relatively prime with powers of 2
+            this hash function can be reliably used as part of a double hashing scheme as it
+            is guaranteed to eventually probe every slot in the table. (Table sizes are
+            constrained to be a power of two)
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.#ctor">
+            <summary>
+            Create the LockFreeReaderHashtable. This hash table is designed for GetOrCreateValue
+            to be a generally lock free api (unless an add is necessary)
+            </summary>
+        </member>
+        <member name="P:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.Count">
+            <summary>
+            The current count of elements in the hashtable
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.TryGetValue(`0,`1@)">
+            <summary>
+            Gets the value associated with the specified key.
+            </summary>
+            <param name="key">The key of the value to get.</param>
+            <param name="value">When this method returns, contains the value associated with
+            the specified key, if the key is found; otherwise, the default value for the type
+            of the value parameter. This parameter is passed uninitialized. This function is threadsafe,
+            and wait-free</param>
+            <returns>true if a value was found</returns>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.WaitForSentinelInHashtableToDisappear(System.IntPtr[],System.Int32)">
+            <summary>
+            Spin and wait for a sentinel to disappear.
+            </summary>
+            <param name="hashtable"></param>
+            <param name="tableIndex"></param>
+            <returns>The value that replaced the sentinel, or null</returns>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.Expand(System.IntPtr[])">
+            <summary>
+            Make the underlying array of the hashtable bigger. This function
+            does not change the contents of the hashtable. This entire function locks.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.Reserve(System.Int32)">
+            <summary>
+            Grow the hashtable so that storing into the hashtable does not require any allocation
+            operations.
+            </summary>
+            <param name="size"></param>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.TryAdd(`1)">
+            <summary>
+            Adds a value to the hashtable if it is not already present.
+            Note that the key is not specified as it is implicit in the value. This function is thread-safe,
+            but must only take locks around internal operations and GetValueHashCode.
+            </summary>
+            <param name="value">Value to attempt to add to the hashtable, must not be null</param>
+            <returns>True if the value was added. False if it was already present.</returns>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.AddOrGetExisting(`1)">
+            <summary>
+            Add a value to the hashtable, or find a value which is already present in the hashtable.
+            Note that the key is not specified as it is implicit in the value. This function is thread-safe,
+            but must only take locks around internal operations and GetValueHashCode.
+            </summary>
+            <param name="value">Value to attempt to add to the hashtable, its conversion to IntPtr must not result in IntPtr.Zero</param>
+            <returns>Newly added value, or a value which was already present in the hashtable which is equal to it.</returns>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.TryAddOrGetExisting(`1,System.Boolean@,`1@)">
+            <summary>
+            Attempts to add a value to the hashtable, or find a value which is already present in the hashtable.
+            In some cases, this will fail due to contention with other additions and must be retried.
+            Note that the key is not specified as it is implicit in the value. This function is thread-safe,
+            but must only take locks around internal operations and GetValueHashCode.
+            </summary>
+            <param name="value">Value to attempt to add to the hashtable, must not be null</param>
+            <param name="addedValue">Set to true if <paramref name="value"/> was added to the table. False if the value
+            was already present. Not defined if adding was attempted but failed.</param>
+            <param name="valueInHashtable">Newly added value if adding succeds, a value which was already present in the hashtable which is equal to it,
+            or an undefined value if adding fails and must be retried.</param>
+            <returns>True if the operation succeeded (either because the value was added or the value was already present).</returns>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.TryWriteSentinelToLocation(System.IntPtr[],System.Int32)">
+            <summary>
+            Attampts to write the Sentinel into the table. May fail if another value has been added.
+            </summary>
+            <returns>True if the value was successfully written</returns>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.WriteValueToLocation(System.IntPtr,System.IntPtr[],System.Int32)">
+            <summary>
+            Writes the value into the table. Must only be used to overwrite a sentinel.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.WriteAbortNullToLocation(System.IntPtr[],System.Int32)">
+            <summary>
+            Abandons the sentinel. Must only be used to overwrite a sentinel.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.GetOrCreateValue(`0)">
+            <summary>
+            Get the value associated with a key. If value is not present in dictionary, use the creator delegate passed in
+            at object construction time to create the value, and attempt to add it to the table. (Create the value while not
+            under the lock, but add it to the table while under the lock. This may result in a throw away object being constructed)
+            This function is thread-safe, but will take a lock to perform its operations.
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.Contains(`0)">
+            <summary>
+            Determine if this collection contains a value associated with a key. This function is thread-safe, and wait-free.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.GetValueIfExists(`1)">
+            <summary>
+            Determine if this collection contains a given value, and returns the value in the hashtable if found. This function is thread-safe, and wait-free.
+            </summary>
+            <param name="value">Value to search for in the hashtable, must not be null</param>
+            <returns>Value from the hashtable if found, otherwise null.</returns>
+        </member>
+        <member name="T:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.Enumerator">
+            <summary>
+            Enumerator type for the LockFreeReaderHashtable
+            This is threadsafe, but is not garaunteed to avoid torn state.
+            In particular, the enumerator may report some newly added values
+            but not others. All values in the hashtable as of enumerator
+            creation will always be enumerated.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.Enumerator.Get(Internal.TypeSystem.LockFreeReaderHashtableOfPointers{`0,`1})">
+            <summary>
+            Use this to get an enumerable collection from a LockFreeReaderHashtable.
+            Used instead of a GetEnumerator method on the LockFreeReaderHashtable to
+            reduce excess type creation. (By moving the method here, the generic dictionary for
+            LockFreeReaderHashtable does not need to contain a reference to the
+            enumerator type.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.GetKeyHashCode(`0)">
+            <summary>
+            Given a key, compute a hash code. This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.GetValueHashCode(`1)">
+            <summary>
+            Given a value, compute a hash code which would be identical to the hash code
+            for a key which should look up this value. This function must be thread safe.
+            This function must also not cause additional hashtable adds.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.CompareKeyToValue(`0,`1)">
+            <summary>
+            Compare a key and value. If the key refers to this value, return true.
+            This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.CompareValueToValue(`1,`1)">
+            <summary>
+            Compare a value with another value. Return true if values are equal.
+            This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.CreateValueFromKey(`0)">
+            <summary>
+            Create a new value from a key. Must be threadsafe. Value may or may not be added
+            to collection. Return value must not be null.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.ConvertValueToIntPtr(`1)">
+            <summary>
+            Convert a value to an IntPtr for storage into the hashtable
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeReaderHashtableOfPointers`2.ConvertIntPtrToValue(System.IntPtr)">
+            <summary>
+            Convert an IntPtr into a value for comparisons, or for returning.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.ExceptionTypeNameFormatter">
+            <summary>
+            Provides a name formatter that is compatible with SigFormat.cpp in the CLR.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.TypeNameFormatter">
+            <summary>
+            Provides services to convert types to strings.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.VirtualMethodAlgorithm">
+            <summary>
+            Pluggable virtual method computation algorithm. Provides an abstraction to resolve
+            virtual and interface methods on types.
+            </summary>
+            <remarks>
+            The algorithms are expected to be directly used by <see cref="T:Internal.TypeSystem.TypeSystemContext"/> derivatives
+            only. The most obvious implementation of this algorithm that uses type's metadata to
+            compute the answers is in MetadataVirtualMethodAlgorithm.
+            </remarks>
+        </member>
+        <member name="M:Internal.TypeSystem.VirtualMethodAlgorithm.ResolveInterfaceMethodToVirtualMethodOnType(Internal.TypeSystem.MethodDesc,Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Resolves interface method '<paramref name="interfaceMethod"/>' to a method on '<paramref name="currentType"/>'
+            that implements the method.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.VirtualMethodAlgorithm.FindVirtualFunctionTargetMethodOnObjectType(Internal.TypeSystem.MethodDesc,Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Resolves a virtual method call.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.VirtualMethodAlgorithm.ComputeAllVirtualSlots(Internal.TypeSystem.TypeDesc)">
+            <summary>
+            Enumerates all virtual slots on '<paramref name="type"/>'.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.DefaultInterfaceMethodResolution.None">
+            <summary>
+            No default implementation was found.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.DefaultInterfaceMethodResolution.DefaultImplementation">
+            <summary>
+            A default implementation was found.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.DefaultInterfaceMethodResolution.Reabstraction">
+            <summary>
+            The implementation was reabstracted.
+            </summary>
+        </member>
+        <member name="F:Internal.TypeSystem.DefaultInterfaceMethodResolution.Diamond">
+            <summary>
+            The default implementation conflicts.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeObjectInterner.GetKeyHashCode(System.Object)">
+            <summary>
+            Given a key, compute a hash code. This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeObjectInterner.GetValueHashCode(System.Runtime.InteropServices.GCHandle)">
+            <summary>
+            Given a value, compute a hash code which would be identical to the hash code
+            for a key which should look up this value. This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeObjectInterner.CompareKeyToValue(System.Object,System.Runtime.InteropServices.GCHandle)">
+            <summary>
+            Compare a key and value. If the key refers to this value, return true.
+            This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeObjectInterner.CompareValueToValue(System.Runtime.InteropServices.GCHandle,System.Runtime.InteropServices.GCHandle)">
+            <summary>
+            Compare a value with another value. Return true if values are equal.
+            This function must be thread safe.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeObjectInterner.CreateValueFromKey(System.Object)">
+            <summary>
+            Create a new value from a key. Must be threadsafe. Value may or may not be added
+            to collection. Return value must not be null.
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeObjectInterner.ConvertValueToIntPtr(System.Runtime.InteropServices.GCHandle)">
+            <summary>
+            Convert a value to an IntPtr for storage into the hashtable
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.LockFreeObjectInterner.ConvertIntPtrToValue(System.IntPtr)">
+            <summary>
+            Convert an IntPtr into a value for comparisons, or for returning.
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.NoMetadata.NoMetadataMethodDesc">
+            <summary>
+            Represents a method that does not have metadata
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.NoMetadata.RuntimeMethodDesc">
+            <summary>
+            Represents a method within the Redhawk runtime
+            </summary>
+        </member>
+        <member name="T:Internal.TypeSystem.NoMetadata.NoMetadataType">
+            <summary>
+            Type that once had metadata, but that metadata is not available
+            for the lifetime of the TypeSystemContext. Directly correlates
+            to a RuntimeTypeHandle useable in the current environment.
+            This type replaces the placeholder NoMetadataType that comes
+            with the common type system codebase
+            </summary>
+        </member>
+        <member name="M:Internal.TypeSystem.NoMetadata.NoMetadataType.SetBaseType(Internal.TypeSystem.DefType)">
+            <summary>
+            This is used to set base type for generic types without metadata
+            </summary>
+        </member>
+        <member name="M:Internal.Reflection.Execution.AssemblyBinderImplementation.RegisterModule(Internal.Runtime.TypeLoader.NativeFormatModuleInfo)">
+            <summary>
+            This callback gets called whenever a module gets registered. It adds the metadata reader
+            for the new module to the available scopes. The lock in ExecutionEnvironmentImplementation ensures
+            that this function may never be called concurrently so that we can assume that two threads
+            never update the reader and scope list at the same time.
+            </summary>
+            <param name="nativeFormatModuleInfo">Module to register</param>
+        </member>
+        <member name="T:System.Collections.Generic.ArrayBuilder`1">
+            <summary>
+            Helper class for building lists that avoids unnecessary allocation
+            </summary>
+        </member>
+        <member name="T:System.Collections.Generic.LowLevelDictionaryWithIEnumerable`2">
+            <summary>
+            LowLevelDictionary when enumeration is needed
+            </summary>
+        </member>
+        <member name="P:System.NotImplemented.ByDesign">
+            <summary>
+            Permanent NotImplementedException with no message shown to user.
+            </summary>
+        </member>
+        <member name="M:System.NotImplemented.ByDesignWithMessage(System.String)">
+            <summary>
+            Permanent NotImplementedException with localized message shown to user.
+            </summary>
+        </member>
+        <member name="P:System.SR.Arg_HTCapacityOverflow">
+            <summary>Hashtable's capacity overflowed and went negative. Check load factor, capacity and the current size of the table.</summary>
+        </member>
+        <member name="P:System.SR.Argument_AddingDuplicate">
+            <summary>An item with the same key has already been added.</summary>
+        </member>
+        <member name="P:System.SR.FileNotFound_AssemblyNotFound">
+            <summary>Cannot load assembly '{0}'. No metadata found for this assembly.</summary>
+        </member>
+        <member name="P:System.SR.FileLoadException_RefDefMismatch">
+            <summary>Cannot load assembly '{0}'. The assembly exists but its version {1} is lower than the requested version {2}.</summary>
+        </member>
+        <member name="P:System.SR.AmbiguousMatchException_Assembly">
+            <summary>Ambiguous match found for assembly '{0}'.</summary>
+        </member>
+    </members>
+</doc>

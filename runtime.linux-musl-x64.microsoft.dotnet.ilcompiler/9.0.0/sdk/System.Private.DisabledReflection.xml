@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Private.DisabledReflection</name>
+    </assembly>
+    <members>
+        <member name="P:System.SR.Arg_HTCapacityOverflow">
+            <summary>Hashtable's capacity overflowed and went negative. Check load factor, capacity and the current size of the table.</summary>
+        </member>
+        <member name="P:System.SR.Reflection_Disabled">
+            <summary>This operation is not available because the reflection support was disabled at compile time.</summary>
+        </member>
+    </members>
+</doc>
