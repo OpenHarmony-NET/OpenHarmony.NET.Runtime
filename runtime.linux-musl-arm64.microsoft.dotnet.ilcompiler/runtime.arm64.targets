@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<IlcSdkPath>../../OpenHarmonyRuntime.Net/runtime.linux-musl-arm64.microsoft.dotnet.ilcompiler/9.0.0/sdk/</IlcSdkPath>
+		<IlcSdkPath>$(MSBuildThisFileDirectory)/9.0.0/sdk/</IlcSdkPath>
 	</PropertyGroup>
 
 </Project>
