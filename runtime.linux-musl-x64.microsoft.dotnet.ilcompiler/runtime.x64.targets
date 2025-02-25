@@ -1,7 +1,16 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
+		<IlcFrameworkNativePath>$(MSBuildThisFileDirectory)/9.0.0/framework/</IlcFrameworkNativePath>
 		<IlcSdkPath>$(MSBuildThisFileDirectory)/9.0.0/sdk/</IlcSdkPath>
 	</PropertyGroup>
+
+	<ItemGroup>
+	    <NativeLibrary Include="$(MSBuildThisFileDirectory)/9.0.0/native/*" />
+	</ItemGroup>
+
+	<Target Name="CopyNativeLibs" BeforeTargets="Build">
+    	<Copy SourceFiles="@(NativeLibrary)" DestinationFolder="$(PublishDir)"/>
+  	</Target>
 
 </Project>
