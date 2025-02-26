@@ -6,11 +6,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	    <NativeLibrary Include="$(MSBuildThisFileDirectory)/9.0.0/native/*" />
+	    <NativeSharedLibrary Include="$(MSBuildThisFileDirectory)/9.0.0/native/*" />
 	</ItemGroup>
 
-	<Target Name="CopyNativeLibs" BeforeTargets="Build">
-    	<Copy SourceFiles="@(NativeLibrary)" DestinationFolder="$(PublishDir)"/>
+	<Target Name="CopyNativeLibs" BeforeTargets="Publish">
+    	<Copy SourceFiles="@(NativeSharedLibrary)" DestinationFolder="$(PublishDir)"/>
   	</Target>
 
 </Project>
