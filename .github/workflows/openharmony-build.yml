@@ -20,7 +20,10 @@ jobs:
       uses: docker/setup-buildx-action@v2
       
     - name: Update Submodule
-      run: git submodule update --init --recursive
+      run: |
+        git submodule update --init --recursive
+        cd runtime
+        ls -al
 
     - name: build for x64
       run: |
