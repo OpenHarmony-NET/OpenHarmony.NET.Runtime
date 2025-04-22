@@ -1,0 +1,30 @@
+name: OpenHarmony Build
+
+on:
+  push:
+    branches:
+      - 'v**'
+  pull_request:
+    branches:
+      - 'v**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
+
+    - name: build for x64
+      run: |
+        chmod +x ./scripts/build-openharmony-x64.sh
+        ./scripts/build-openharmony-x64.sh
+
+    - name: build for arm64
+      run: |
+        chmod +x ./scripts/build-openharmony-arm64.sh
+        ./scripts/build-openharmony-arm64.sh
