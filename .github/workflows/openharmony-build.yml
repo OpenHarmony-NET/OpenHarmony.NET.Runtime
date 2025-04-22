@@ -22,13 +22,15 @@ jobs:
     - name: Update Submodule
       run: |
         git submodule update --init --recursive
-
+        
     - name: build for x64
+      working-directory: ${{ github.workspace }}/scripts
       run: |
-        chmod +x ./scripts/build-openharmony-x64.sh
-        ./scripts/build-openharmony-x64.sh
+        chmod +x ./build-openharmony-x64.sh
+        ./build-openharmony-x64.sh
 
     - name: build for arm64
+      working-directory: ${{ github.workspace }}/scripts
       run: |
-        chmod +x ./scripts/build-openharmony-arm64.sh
-        ./scripts/build-openharmony-arm64.sh
+        chmod +x ./build-openharmony-arm64.sh
+        ./build-openharmony-arm64.sh
