@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 docker run --rm \
-    -v ../runtime:/runtime \
-    -v ../package:/package \
+    -v "$(dirname $(pwd))/runtime:/runtime" \
+    -v "$(dirname $(pwd))/package:/package" \
     -e ROOTFS_DIR="/crossrootfs/arm64" \
     mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net9.0-cross-arm64-musl \
     bash -c "./build.sh --subset clr.aot+libs --configuration Release -arch arm64 --cross \
