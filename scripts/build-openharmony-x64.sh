@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 docker run --rm \
-    -v ../runtime:/runtime \
-    -v ../package:/package \
+    -v /runtime:/runtime \
+    -v /package:/package \
     -w /runtime \
     -e ROOTFS_DIR="/crossrootfs/x64" \
     mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net9.0-cross-amd64-musl \
