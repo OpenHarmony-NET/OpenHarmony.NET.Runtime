@@ -1,12 +1,12 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<PropertyGroup>
-		<IlcFrameworkNativePath>$(MSBuildThisFileDirectory)/9.0.0/framework/</IlcFrameworkNativePath>
-		<IlcSdkPath>$(MSBuildThisFileDirectory)/9.0.0/sdk/</IlcSdkPath>
+		<IlcFrameworkNativePath>$(MSBuildThisFileDirectory)/framework/</IlcFrameworkNativePath>
+		<IlcSdkPath>$(MSBuildThisFileDirectory)/sdk/</IlcSdkPath>
 	</PropertyGroup>
 
 	<ItemGroup>
-	    <NativeSharedLibrary Include="$(MSBuildThisFileDirectory)/9.0.0/native/*" />
+	    <NativeSharedLibrary Include="$(MSBuildThisFileDirectory)/native/*" />
 	</ItemGroup>
 
 	<Target Name="CopyNativeLibs" BeforeTargets="Publish">
