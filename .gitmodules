@@ -1,0 +1,4 @@
+[submodule "runtime"]
+	path = runtime
+	url = https://github.com/OpenHarmony-NET/runtime
+	branch = oh_v9.0.2
