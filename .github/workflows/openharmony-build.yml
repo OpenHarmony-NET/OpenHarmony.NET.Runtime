@@ -18,6 +18,9 @@ jobs:
 
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
+      
+    - name: Update Submodule
+      run: git submodule update --init --recursive
 
     - name: build for x64
       run: |
