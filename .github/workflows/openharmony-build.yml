@@ -22,8 +22,6 @@ jobs:
     - name: Update Submodule
       run: |
         git submodule update --init --recursive
-        cd runtime
-        ls -al
 
     - name: build for x64
       run: |
