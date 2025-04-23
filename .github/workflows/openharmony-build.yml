@@ -34,3 +34,20 @@ jobs:
       run: |
         chmod +x ./build-openharmony-arm64.sh
         ./build-openharmony-arm64.sh
+    
+    - name: pack nuget
+      working-directory: ${{ github.workspace }}/package
+      nuget pack ./OpenHarmony.NET.Runtime.nuspec -OutputDirectory ../output -Version 0.0.0-alpha.${{github.run_number}}
+
+  publish-to-nuget:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: output
+      - name: Push to NuGet
+        run: |
+          dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
