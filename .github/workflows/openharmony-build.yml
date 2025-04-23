@@ -50,7 +50,12 @@ jobs:
       working-directory: ${{ github.workspace }}/package
       run: |
         nuget pack ./OpenHarmony.NET.Runtime.nuspec -OutputDirectory ../output -Version 0.0.0-alpha.${{github.run_number}}
-      
+        
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: packages
+        path: output
 
   publish-to-nuget:
     needs: build
