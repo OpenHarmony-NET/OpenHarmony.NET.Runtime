@@ -18,7 +18,17 @@ jobs:
 
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
-      
+    - name: Install Mono
+      run: |
+        sudo apt update & sudo apt install dirmngr gnupg apt-transport-https ca-certificates software-properties-common -y
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+        sudo apt-add-repository 'deb https://download.mono-project.com/repo/ubuntu stable-bionic main'
+        sudo apt install mono-complete
+        mono --version
+        
+    - name: Set up nuget
+    - uses: nuget/setup-nuget@v2
+    
     - name: Update Submodule
       run: |
         git submodule update --init --recursive
@@ -29,6 +39,7 @@ jobs:
         chmod +x ./build-openharmony-x64.sh
         ./build-openharmony-x64.sh
 
+        
     - name: build for arm64
       working-directory: ${{ github.workspace }}/scripts
       run: |
@@ -39,6 +50,7 @@ jobs:
       working-directory: ${{ github.workspace }}/package
       run: |
         nuget pack ./OpenHarmony.NET.Runtime.nuspec -OutputDirectory ../output -Version 0.0.0-alpha.${{github.run_number}}
+      
 
   publish-to-nuget:
     needs: build
@@ -49,14 +61,6 @@ jobs:
         with:
           name: packages
           path: output
-      - uses: nuget/setup-nuget@v2
-      - name: Install Mono
-        run: |
-          sudo apt update & sudo apt install dirmngr gnupg apt-transport-https ca-certificates software-properties-common -y
-          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-          sudo apt-add-repository 'deb https://download.mono-project.com/repo/ubuntu stable-bionic main'
-          sudo apt install mono-complete
-          mono --version
       - name: Push to NuGet
         run: |
           dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
