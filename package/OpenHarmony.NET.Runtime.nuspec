@@ -5,6 +5,10 @@
     <version>1.0.0</version>
     <authors>OpenHarmony.NET</authors>
     <description>.NET AOT Runtime for OpenHarmony</description>
+    <dependencies>
+      <group targetFramework="net9.0">
+      </group>
+    </dependencies>
   </metadata>
   <files>
     <file src="build\runtime.targets" target="build\runtime.targets" />
