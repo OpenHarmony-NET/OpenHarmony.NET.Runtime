@@ -37,7 +37,8 @@ jobs:
     
     - name: pack nuget
       working-directory: ${{ github.workspace }}/package
-      nuget pack ./OpenHarmony.NET.Runtime.nuspec -OutputDirectory ../output -Version 0.0.0-alpha.${{github.run_number}}
+      run: |
+        nuget pack ./OpenHarmony.NET.Runtime.nuspec -OutputDirectory ../output -Version 0.0.0-alpha.${{github.run_number}}
 
   publish-to-nuget:
     needs: build
