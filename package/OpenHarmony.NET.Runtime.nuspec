@@ -11,6 +11,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="build\runtime.targets" target="build\runtime.targets" />
+    <file src="build\**\*" target="build\" />
   </files>
 </package>
