@@ -27,7 +27,7 @@ jobs:
         mono --version
         
     - name: Set up nuget
-    - uses: nuget/setup-nuget@v2
+      uses: nuget/setup-nuget@v2
     
     - name: Update Submodule
       run: |
